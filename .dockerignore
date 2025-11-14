@@ -1,0 +1,47 @@
+# Docker-specific files
+Dockerfile
+Dockerfile.dev
+docker-compose*.yml
+nginx.conf
+
+# SSL certificates (if any)
+ssl/
+*.pem
+*.key
+*.crt
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+client/build/
+build/
+dist/
+
+# Dependencies
+node_modules/
+client/node_modules/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Testing
+coverage/
+
+# Temporary files
+tmp/
+temp/
+.cache/

@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Development app with hot reload
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: tattoo-app-dev
+    volumes:
+      # Mount source code for hot reload
+      - ./server:/app/server
+      - ./client/src:/app/client/src
+      - ./client/public:/app/client/public
+      # Prevent node_modules from being overwritten
+      - /app/node_modules
+      - /app/client/node_modules
+    ports:
+      - "3000:3000"  # React dev server
+      - "5000:5000"  # Express API
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      CLIENT_URL: http://localhost:3000
+      MONGODB_URI: ${MONGODB_URI:-}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
+      HUGGING_FACE_API_KEY: ${HUGGING_FACE_API_KEY:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+    stdin_open: true
+    tty: true
+    networks:
+      - tattoo-network
+
+  # MongoDB for development (optional)
+  mongodb:
+    image: mongo:7-jammy
+    container_name: tattoo-mongodb-dev
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: dev
+      MONGO_INITDB_ROOT_PASSWORD: dev123
+      MONGO_INITDB_DATABASE: tattoo_dev
+    volumes:
+      - mongodb_dev_data:/data/db
+    networks:
+      - tattoo-network
+    profiles:
+      - with-db
+
+networks:
+  tattoo-network:
+    driver: bridge
+
+volumes:
+  mongodb_dev_data:
+    driver: local

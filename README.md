@@ -93,6 +93,8 @@ To get a free Hugging Face API key:
 
 4. **Run the application**
 
+**Option A: Traditional Node.js (Development)**
+
 For development (runs both frontend and backend):
 ```bash
 npm run dev
@@ -104,9 +106,65 @@ npm run build
 npm start
 ```
 
+**Option B: Docker (Recommended for Production)**
+
+Quick start with Docker:
+```bash
+# Copy environment template
+cp .env.docker .env
+
+# Edit .env and add your configuration
+
+# Start with Docker Compose
+docker-compose up -d
+
+# Access at http://localhost:5000
+```
+
+See [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md) for complete Docker documentation.
+
 The application will be available at:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
+- **Docker**: http://localhost:5000 (production-ready)
+- **Traditional**: Frontend at http://localhost:3000, Backend at http://localhost:5000
+
+## Deployment
+
+### Docker Deployment (Recommended)
+
+Docker provides a production-ready, containerized deployment with:
+- ✅ Multi-stage builds for optimized images
+- ✅ Built-in MongoDB container
+- ✅ Nginx reverse proxy (optional)
+- ✅ Health checks and auto-restart
+- ✅ Volume persistence for database
+- ✅ Security hardening (non-root user)
+
+**Quick Deploy:**
+```bash
+docker-compose up -d
+```
+
+**Features:**
+- Production: `docker-compose up -d` (app + database + optional nginx)
+- Development: `docker-compose -f docker-compose.dev.yml up` (hot reload)
+- Monitoring: Built-in health checks and logging
+- Scaling: `docker-compose up -d --scale app=3`
+
+See [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md) for:
+- Complete deployment guide
+- Configuration options
+- Monitoring and troubleshooting
+- Cloud deployment (AWS, GCP, DigitalOcean)
+- Production best practices
+
+### Traditional Deployment
+
+For deploying without Docker:
+1. Set up MongoDB instance
+2. Configure environment variables
+3. Build frontend: `npm run build`
+4. Start server: `npm start`
+5. Use PM2 or similar for process management
 
 ## Usage
 

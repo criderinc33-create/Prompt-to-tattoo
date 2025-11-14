@@ -1,0 +1,25 @@
+# Development-optimized Dockerfile with hot reload
+
+FROM node:18-alpine
+
+# Install nodemon for hot reload
+RUN npm install -g nodemon
+
+# Create app directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY client/package*.json ./client/
+
+# Install all dependencies (including dev dependencies)
+RUN npm install && cd client && npm install
+
+# Copy application code
+COPY . .
+
+# Expose ports
+EXPOSE 5000 3000
+
+# Start both frontend and backend in development mode
+CMD ["npm", "run", "dev"]
