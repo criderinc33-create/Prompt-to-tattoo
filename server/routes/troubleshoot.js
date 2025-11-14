@@ -2,12 +2,16 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs').promises;
 const path = require('path');
+const { createRateLimiter } = require('../middleware/rateLimit');
+
+// Rate limiting for troubleshooting endpoints
+const troubleshootLimiter = createRateLimiter({ limit: 30, window: 15 * 60 * 1000 }); // 30 req per 15 min
 
 // Automatic Troubleshooting Agent
 // Detects and fixes common issues automatically
 
 // System diagnostics
-router.get('/diagnose', async (req, res) => {
+router.get('/diagnose', troubleshootLimiter, async (req, res) => {
   const diagnostics = {
     timestamp: new Date().toISOString(),
     issues: [],
@@ -127,7 +131,7 @@ router.get('/diagnose', async (req, res) => {
 });
 
 // Auto-fix common issues
-router.post('/fix', async (req, res) => {
+router.post('/fix', troubleshootLimiter, async (req, res) => {
   const { issue } = req.body;
   const fixes = [];
 
@@ -241,7 +245,7 @@ router.post('/fix', async (req, res) => {
 });
 
 // Get troubleshooting suggestions
-router.post('/suggest', (req, res) => {
+router.post('/suggest', troubleshootLimiter, (req, res) => {
   const { error, context } = req.body;
 
   const suggestions = [];
