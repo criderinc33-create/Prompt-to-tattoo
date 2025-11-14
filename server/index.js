@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
+const morgan = require('morgan');
 require('dotenv').config();
 
 const app = express();
@@ -19,9 +21,56 @@ if (process.env.MONGODB_URI) {
   console.log('Running without database - some features will be limited');
 }
 
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
+// Security Middleware
+// Helmet - Sets various HTTP headers for security
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+}));
+
+// Request logging
+if (process.env.NODE_ENV === 'production') {
+  // Log only errors in production
+  app.use(morgan('combined', {
+    skip: (req, res) => res.statusCode < 400
+  }));
+} else {
+  // Log all requests in development
+  app.use(morgan('dev'));
+}
+
+// CORS configuration - restrict in production
+const corsOptions = {
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
+
+// Body parsing with size limits
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve static files
 app.use(express.static('client/build'));
 
 // Routes

@@ -3,6 +3,7 @@ const router = express.Router();
 const fs = require('fs').promises;
 const path = require('path');
 const { createRateLimiter } = require('../middleware/rateLimit');
+const { validate, validationRules } = require('../middleware/validation');
 
 // Rate limiting for troubleshooting endpoints
 const troubleshootLimiter = createRateLimiter({ limit: 30, window: 15 * 60 * 1000 }); // 30 req per 15 min
@@ -131,7 +132,7 @@ router.get('/diagnose', troubleshootLimiter, async (req, res) => {
 });
 
 // Auto-fix common issues
-router.post('/fix', troubleshootLimiter, async (req, res) => {
+router.post('/fix', troubleshootLimiter, validate(validationRules.troubleshootFix), async (req, res) => {
   const { issue } = req.body;
   const fixes = [];
 
@@ -245,7 +246,7 @@ router.post('/fix', troubleshootLimiter, async (req, res) => {
 });
 
 // Get troubleshooting suggestions
-router.post('/suggest', troubleshootLimiter, (req, res) => {
+router.post('/suggest', troubleshootLimiter, validate(validationRules.troubleshootSuggest), (req, res) => {
   const { error, context } = req.body;
 
   const suggestions = [];

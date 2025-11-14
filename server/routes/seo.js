@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { validate, validationRules } = require('../middleware/validation');
 
 // SEO Agent - Provides meta tags, structured data, and SEO optimization
 
@@ -157,7 +158,7 @@ Crawl-delay: 1`;
 });
 
 // SEO audit - Check page SEO health
-router.post('/audit', (req, res) => {
+router.post('/audit', validate(validationRules.seoAudit), (req, res) => {
   const { url, content } = req.body;
   
   const audit = {

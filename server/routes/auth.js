@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../middleware/auth');
 const { createRateLimiter } = require('../middleware/rateLimit');
+const { validate, validationRules } = require('../middleware/validation');
 
 // Rate limiting for auth endpoints (stricter for login/register)
 const authLimiter = createRateLimiter({ limit: 10, window: 15 * 60 * 1000 }); // 10 req per 15 min
@@ -18,7 +19,7 @@ const getUser = () => {
 };
 
 // Register
-router.post('/register', authLimiter, async (req, res) => {
+router.post('/register', authLimiter, validate(validationRules.register), async (req, res) => {
   try {
     const User = getUser();
     if (!User) {
@@ -77,7 +78,7 @@ router.post('/register', authLimiter, async (req, res) => {
 });
 
 // Login
-router.post('/login', authLimiter, async (req, res) => {
+router.post('/login', authLimiter, validate(validationRules.login), async (req, res) => {
   try {
     const User = getUser();
     if (!User) {

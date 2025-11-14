@@ -53,21 +53,43 @@ cd Prompt-to-tattoo
 npm run install-all
 ```
 
-3. **Configure environment variables** (Optional for full AI functionality)
+3. **Configure environment variables and security** (Recommended)
+
+**Quick Setup (Automated):**
+```bash
+./setup-security.sh
+```
+This will:
+- Create .env from template
+- Generate secure JWT_SECRET
+- Install security packages
+- Provide configuration checklist
+
+**Manual Setup:**
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` and add your Hugging Face API key:
-```
+Edit `.env` and configure:
+```bash
+# Required for production
+NODE_ENV=production
+JWT_SECRET=<run: node -e "console.log(require('crypto').randomBytes(32).toString('base64'))">
+CLIENT_URL=https://yourdomain.com
+
+# Optional features
 HUGGING_FACE_API_KEY=your_api_key_here
+MONGODB_URI=mongodb+srv://...
+STRIPE_SECRET_KEY=sk_live_...
 ```
 
-To get a free API key:
+To get a free Hugging Face API key:
 1. Visit [Hugging Face](https://huggingface.co)
 2. Create an account or sign in
 3. Go to Settings → Access Tokens
 4. Create a new token with read permissions
+
+**Security Note**: See [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md) for complete production security configuration.
 
 4. **Run the application**
 
@@ -216,13 +238,55 @@ This creates an optimized production build in `client/build/`.
 
 ## Security & Privacy
 
-- ✅ No user data is stored
+### Security Features Implemented
+
+- ✅ **Helmet.js** - Security headers (CSP, HSTS, X-Frame-Options, etc.)
+- ✅ **Input Validation** - Express-validator for all user inputs
+- ✅ **Rate Limiting** - Prevents brute force and API abuse
+- ✅ **CORS Protection** - Restricted to configured origins
+- ✅ **Request Logging** - Morgan for monitoring and auditing
+- ✅ **JWT Authentication** - Secure token-based auth for premium features
+- ✅ **Password Hashing** - bcryptjs with salt rounds
+- ✅ **Environment Variables** - Secrets never in code
+
+### Rate Limiting
+
+The API implements comprehensive rate limiting:
+- **Auth endpoints**: 10 requests per 15 minutes (prevents brute force)
+- **Generation (anonymous)**: 10 requests per hour
+- **Generation (authenticated)**: Credit-based system
+- **Troubleshooting**: 30 requests per 15 minutes
+
+### Privacy
+
+- ✅ No user data is stored (unless authenticated for premium features)
 - ✅ All processing happens in real-time
-- ✅ Rate limiting prevents abuse
-- ✅ No authentication required (stateless)
+- ✅ No authentication required for basic usage (stateless)
 - ✅ CORS configured for security
 - ⚠️ Generated images are not saved server-side
-- ⚠️ API key should be kept secret (use environment variables)
+- ⚠️ API keys should be kept secret (use environment variables)
+
+### Production Security Checklist
+
+Before deploying to production:
+
+1. **Run Security Setup**
+   ```bash
+   ./setup-security.sh
+   ```
+
+2. **Complete Security Checklist**
+   - See [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md) for full details
+   - Configure strong JWT_SECRET
+   - Enable HTTPS
+   - Set NODE_ENV=production
+   - Configure database backups
+   - Set up monitoring and alerts
+
+3. **Security Documentation**
+   - [SECURITY.md](SECURITY.md) - Security analysis and findings
+   - [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md) - Pre-deployment checklist
+   - [PREMIUM_FEATURES.md](PREMIUM_FEATURES.md) - Premium security features
 
 ## Disclaimer
 

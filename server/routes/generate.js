@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const { optionalAuth } = require('../middleware/auth');
+const { validate, validationRules } = require('../middleware/validation');
 
 // Check if database is available
 const mongoose = require('mongoose');
@@ -38,7 +39,7 @@ function checkRateLimit(ip) {
 }
 
 // Generate tattoo design endpoint
-router.post('/generate', optionalAuth, async (req, res) => {
+router.post('/generate', optionalAuth, validate(validationRules.generate), async (req, res) => {
   try {
     const { prompt } = req.body;
     
